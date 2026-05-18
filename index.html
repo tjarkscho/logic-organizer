@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logic Organizer — Désignation</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F8F7F4;
+    --surface: #FFFFFF;
+    --border: #E2E0DA;
+    --text: #1A1917;
+    --muted: #7A7870;
+    --green: #1B6B47;
+    --green-light: #EAF4EE;
+    --amber: #92600A;
+    --amber-light: #FEF3DC;
+    --red: #A8292A;
+    --red-light: #FDEAEA;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  .topbar {
+    background: var(--text);
+    padding: 14px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .topbar-logo {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    color: #F8F7F4;
+    text-transform: uppercase;
+  }
+  .topbar-right { font-size: 11px; color: #666; font-family: var(--mono); }
+
+  .hero {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 56px 48px 44px;
+  }
+  .hero-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .hero-title {
+    font-size: clamp(30px, 4vw, 50px);
+    font-weight: 300;
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+    margin-bottom: 14px;
+  }
+  .hero-title strong { font-weight: 600; }
+  .hero-sub { font-size: 14px; color: var(--muted); max-width: 520px; line-height: 1.6; }
+
+  .main { max-width: 900px; margin: 0 auto; padding: 52px 48px 96px; display: grid; gap: 44px; }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .formula-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 26px 28px 20px;
+  }
+  .formula-parts { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; margin-bottom: 16px; }
+  .fp { font-family: var(--mono); font-size: 14px; font-weight: 600; padding: 7px 13px; border-radius: 5px; }
+  .fp-type { background: var(--green-light); color: var(--green); }
+  .fp-num  { background: var(--amber-light); color: var(--amber); }
+  .fp-sep  { background: transparent; color: var(--muted); padding: 7px 3px; font-weight: 400; font-size: 16px; }
+  .fp-ver  { background: var(--red-light); color: var(--red); }
+  .formula-legend { display: flex; gap: 20px; flex-wrap: wrap; padding-top: 14px; border-top: 1px solid var(--border); }
+  .fl-item { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted); }
+  .fl-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+
+  .legend-table { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .legend-row { display: grid; grid-template-columns: 52px 1fr; border-bottom: 1px solid var(--border); transition: background 0.12s; }
+  .legend-row:last-child { border-bottom: none; }
+  .legend-row:hover { background: #FAFAF8; }
+  .legend-key { font-family: var(--mono); font-weight: 700; font-size: 14px; color: var(--green); padding: 15px 0 15px 22px; display: flex; align-items: center; border-right: 1px solid var(--border); }
+  .legend-desc { padding: 15px 22px; font-size: 13px; color: var(--text); display: flex; align-items: center; }
+  .legend-sep { color: var(--muted); margin: 0 8px; font-size: 11px; }
+
+  .version-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .version-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 22px 24px; }
+  .version-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .vc-code { font-family: var(--mono); font-size: 13px; font-weight: 700; }
+  .vc-badge { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 9px; border-radius: 3px; }
+  .vc-badge-obj { background: var(--amber-light); color: var(--amber); }
+  .vc-badge-ver { background: var(--red-light); color: var(--red); }
+  .vc-desc { font-size: 12px; color: var(--muted); line-height: 1.65; margin-bottom: 12px; }
+  .vc-examples { display: flex; flex-direction: column; gap: 5px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .vc-ex { font-family: var(--mono); font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .vc-ex strong { color: var(--text); font-weight: 600; }
+  .vc-arrow { color: var(--border); }
+
+  .proj-input-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 22px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .proj-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; color: var(--muted); white-space: nowrap; }
+  #projInput {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--amber);
+    background: var(--amber-light);
+    border: 1px solid #E8C97A;
+    border-radius: 5px;
+    padding: 7px 14px;
+    outline: none;
+    width: 180px;
+    letter-spacing: 0.05em;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  #projInput:focus { border-color: var(--amber); box-shadow: 0 0 0 3px rgba(146,96,10,0.1); }
+  .proj-hint { font-size: 11px; color: var(--muted); font-style: italic; }
+
+  .examples-table { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .ex-header { display: grid; grid-template-columns: 240px 1fr; background: #F5F4F0; border-bottom: 1px solid var(--border); padding: 10px 22px; }
+  .ex-header span { font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+  .ex-row { display: grid; grid-template-columns: 240px 1fr; border-bottom: 1px solid var(--border); transition: background 0.12s; padding: 0 22px; }
+  .ex-row:last-child { border-bottom: none; }
+  .ex-row:hover { background: #FAFAF8; }
+  .ex-code { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--green); padding: 14px 20px 14px 0; border-right: 1px solid var(--border); display: flex; align-items: center; }
+  .ex-desc { padding: 14px 0 14px 20px; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 0; }
+  .ex-desc .de { color: var(--text); }
+  .ex-desc .sep { margin: 0 8px; color: var(--border); }
+
+  footer { border-top: 1px solid var(--border); padding: 20px 48px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--muted); font-family: var(--mono); background: var(--surface); }
+
+  @media (max-width: 640px) {
+    .topbar, .hero, .main, footer { padding-left: 20px; padding-right: 20px; }
+    .version-grid { grid-template-columns: 1fr; }
+    .ex-header, .ex-row { grid-template-columns: 1fr; }
+    .ex-code { border-right: none; padding-right: 0; border-bottom: 1px solid var(--border); }
+    .ex-desc { padding-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">Logic Organizer</div>
+  <div class="topbar-right">Désignation v1.0</div>
+</div>
+
+<div class="hero">
+  <div class="hero-label">Intern normalisierte Beschreibung / Description normalisée interne</div>
+  <h1 class="hero-title"><strong>Système de</strong><br>désignation</h1>
+  <p class="hero-sub">Standard de nommage unifié pour tous les fichiers de projet. Einheitlicher Benennungsstandard für alle Projektdateien.</p>
+</div>
+
+<div class="main">
+
+  <div>
+    <div class="section-label">Struktur / Structure</div>
+    <div class="formula-box">
+      <div class="formula-parts">
+        <span class="fp fp-type">[Typ]</span>
+        <span class="fp fp-num">[N° Projet]</span>
+        <span class="fp fp-sep">_</span>
+        <span class="fp fp-num">[Objekt]</span>
+        <span class="fp fp-sep">–</span>
+        <span class="fp fp-ver">[Version]</span>
+      </div>
+      <div class="formula-legend">
+        <div class="fl-item"><div class="fl-dot" style="background:#1B6B47"></div>Typ (P, A, E, C, S)</div>
+        <div class="fl-item"><div class="fl-dot" style="background:#92600A"></div>N° de projet + N° d'objet</div>
+        <div class="fl-item"><div class="fl-dot" style="background:#A8292A"></div>Version du fichier</div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-label">Legende / Légende</div>
+    <div class="legend-table">
+      <div class="legend-row">
+        <div class="legend-key">P</div>
+        <div class="legend-desc">Piece<span class="legend-sep">/</span>Pièce<span class="legend-sep">/</span>Teil</div>
+      </div>
+      <div class="legend-row">
+        <div class="legend-key">A</div>
+        <div class="legend-desc">Assembly<span class="legend-sep">/</span>Assemblage<span class="legend-sep">/</span>Zusammenstellung</div>
+      </div>
+      <div class="legend-row">
+        <div class="legend-key">E</div>
+        <div class="legend-desc">Electrical schema<span class="legend-sep">/</span>Schéma électrique<span class="legend-sep">/</span>Elektroplan</div>
+      </div>
+      <div class="legend-row">
+        <div class="legend-key">C</div>
+        <div class="legend-desc">Cable list<span class="legend-sep">/</span>Liste de câbles<span class="legend-sep">/</span>Kabelliste</div>
+      </div>
+      <div class="legend-row">
+        <div class="legend-key">S</div>
+        <div class="legend-desc">Software<span class="legend-sep">/</span>Logiciel<span class="legend-sep">/</span>Software</div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-label">Versionen / Versions</div>
+    <div class="version-grid">
+      <div class="version-card">
+        <div class="version-card-top">
+          <span class="vc-code" style="color:var(--amber)">_001 / _002</span>
+          <span class="vc-badge vc-badge-obj">Objekt-Nr.</span>
+        </div>
+        <p class="vc-desc">Neues unabhängiges Objekt desselben Typs im Projekt.<br>Nouvel objet indépendant du même type dans le projet.</p>
+        <div class="vc-examples">
+          <div class="vc-ex"><strong>P…_001</strong><span class="vc-arrow">→</span>1. Teil / 1ère pièce</div>
+          <div class="vc-ex"><strong>P…_002</strong><span class="vc-arrow">→</span>2. Teil / 2ème pièce</div>
+        </div>
+      </div>
+      <div class="version-card">
+        <div class="version-card-top">
+          <span class="vc-code" style="color:var(--red)">-V1 / -V2</span>
+          <span class="vc-badge vc-badge-ver">Version</span>
+        </div>
+        <p class="vc-desc">Überarbeitung desselben Objekts (Korrektur, Änderung).<br>Révision du même objet (correction, modification).</p>
+        <div class="vc-examples">
+          <div class="vc-ex"><strong>…_001-V1</strong><span class="vc-arrow">→</span>Original</div>
+          <div class="vc-ex"><strong>…_001-V2</strong><span class="vc-arrow">→</span>Korrigiert / Corrigé</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-label">Beispiele / Exemples</div>
+    <div class="proj-input-row">
+      <span class="proj-label">N° Projekt →</span>
+      <input id="projInput" type="text" value="20260638" oninput="updateExamples()" maxlength="20" />
+      <span class="proj-hint">Projektnummer eingeben / Saisir le numéro de projet</span>
+    </div>
+    <div class="examples-table">
+      <div class="ex-header">
+        <span>Bezeichnung / Désignation</span>
+        <span>Beschreibung / Description</span>
+      </div>
+      <div class="ex-row"><div class="ex-code" id="ex1">P20260638_001-V1</div><div class="ex-desc"><span class="de">Erstes CAD-Teil, V1</span><span class="sep">/</span>Première pièce CAD, V1</div></div>
+      <div class="ex-row"><div class="ex-code" id="ex2">P20260638_001-V2</div><div class="ex-desc"><span class="de">Erstes Teil, überarbeitet</span><span class="sep">/</span>Première pièce, révisée</div></div>
+      <div class="ex-row"><div class="ex-code" id="ex3">P20260638_002-V1</div><div class="ex-desc"><span class="de">Zweites CAD-Teil, V1</span><span class="sep">/</span>Deuxième pièce CAD, V1</div></div>
+      <div class="ex-row"><div class="ex-code" id="ex4">A20260638_001-V1</div><div class="ex-desc"><span class="de">Erste Zusammenstellung, V1</span><span class="sep">/</span>Premier assemblage CAD, V1</div></div>
+      <div class="ex-row"><div class="ex-code" id="ex5">E20260638_001-V1</div><div class="ex-desc"><span class="de">Erster Elektroplan, V1</span><span class="sep">/</span>Premier schéma électrique, V1</div></div>
+      <div class="ex-row"><div class="ex-code" id="ex6">C20260638_001-V1</div><div class="ex-desc"><span class="de">Erste Kabelliste, V1</span><span class="sep">/</span>Première liste de câbles, V1</div></div>
+      <div class="ex-row"><div class="ex-code" id="ex7">S20260638_001-V1</div><div class="ex-desc"><span class="de">Erstes Programm, V1</span><span class="sep">/</span>Premier programme, V1</div></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span>Logic Organizer — Désignation</span>
+  <span>v1.0 · 2026</span>
+</footer>
+
+<script>
+const templates = [
+  { id: 'ex1', prefix: 'P', suffix: '_001-V1' },
+  { id: 'ex2', prefix: 'P', suffix: '_001-V2' },
+  { id: 'ex3', prefix: 'P', suffix: '_002-V1' },
+  { id: 'ex4', prefix: 'A', suffix: '_001-V1' },
+  { id: 'ex5', prefix: 'E', suffix: '_001-V1' },
+  { id: 'ex6', prefix: 'C', suffix: '_001-V1' },
+  { id: 'ex7', prefix: 'S', suffix: '_001-V1' },
+];
+function updateExamples() {
+  const num = document.getElementById('projInput').value || '________';
+  templates.forEach(t => {
+    document.getElementById(t.id).textContent = t.prefix + num + t.suffix;
+  });
+}
+</script>
+</body>
+</html>
